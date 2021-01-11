@@ -15,7 +15,7 @@ schedules:
   always: true
 
 variables:
-- group: Crawler Variable
+- group: Billing.RhipeCrawler.vg
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -29,11 +29,6 @@ steps:
   inputs:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
-
-- script: |
-    sudo apt-get update
-    sudo apt-get install libcurl4-openssl-dev libssl-dev
-  displayName: 'Install libssl'
 
 - script: |
     python -m pip install --upgrade pip
