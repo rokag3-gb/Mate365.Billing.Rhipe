@@ -15,7 +15,7 @@ schedules:
 
 
 variables:
-- group: Crawler Variable
+- group: Billing.RhipeCrawler.vg
 
 pool:
   vmImage: 'ubuntu-latest'
