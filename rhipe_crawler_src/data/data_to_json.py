@@ -1,0 +1,112 @@
+import json
+
+
+def tenant_json(t_json: dict):
+    if not t_json:
+        return dict()
+    tenant = {
+        'TenantStatus': str(t_json['TenantStatus']),
+        'CustomerId': str(t_json['CustomerId']),
+        'CustomerName': str(t_json['CustomerName']),
+        'Subscriptions': subscriptions_json(t_json['Subscriptions']),
+    }
+    return tenant
+
+
+def subscriptions_json(t_json: list):
+    if not t_json:
+        return list()
+    subscriptions = []
+    for subscription in t_json:
+        subscriptions.append({
+            'SubscriptionId': subscription['SubscriptionId'],
+            'Status': subscription['Status'],
+            'ProgramReferenceLabel': subscription['ProgramReferenceLabel'],
+            'ProductId': subscription['ProductId'],
+            'Quantity': subscription['Quantity'],
+            'FirstPurchased': subscription['FirstPurchased'],
+            'DisplayTemplate': subscription['DisplayTemplate'],
+            'Unit': subscription['Unit'],
+            'BillingCycle': subscription['BillingCycle'],
+            'BillingCycleDuration': subscription['BillingCycleDuration'],
+            'ProductName': subscription['ProductName'],
+            'Services': services_json(subscription['Services']) if 'Services' in subscription else None
+        })
+    return subscriptions
+
+
+def services_json(t_json: dict):
+    if not t_json:
+        return dict()
+    services = {
+        'SubscriptionName': str(t_json['SubscriptionName']),
+        'StartDate': str(t_json['StartDate']),
+        'EndDate': str(t_json['EndDate']),
+        'Currency': str(t_json['Currency']),
+        'TotalCost': str(t_json['TotalCost']),
+        'LastUpdateDate': str(t_json['LastUpdateDate']),
+        # 'ResourceUsageSummaries': resource_usage_summary_json(t_json['ResourceUsageSummaries']) if 'ResourceUsageSummaries' in t_json else [],
+        'ResourceUsageDetails': detail_usage_line_item_json(t_json['ResourceUsageDetails']) if 'ResourceUsageDetails' in t_json else [],
+    }
+    return services
+
+
+def detail_json(t_json: dict):
+    if not t_json:
+        return dict()
+    detail = {
+        'tenant': str(t_json['tenant']),
+        'subscription': str(t_json['subscription']),
+        'body': detail_usage_line_item_json(t_json['body']),
+        'last_update_date': t_json['last_update_date']
+    }
+    return detail
+
+
+def summary_json(t_json: dict):
+    if not t_json:
+        return dict()
+    summary = {
+        'tenant': str(t_json['tenant']),
+        'subscription': str(t_json['subscription']),
+        'body': t_json['body'],
+        'last_update_date': t_json['last_update_date']
+    }
+    return summary
+
+
+def resource_usage_summary_json(t_json: list):
+    if not t_json:
+        return list()
+    resources = []
+    for resource in resources:
+        resources.append({
+            'ResourceId': resource['ResourceId'],
+            'ResourceName': resource['ResourceName'],
+            'ResourceCategory': resource['ResourceCategory'],
+            'Cost': resource['Cost'],
+
+        })
+    return resources
+
+
+def detail_usage_line_item_json(t_json: list):
+    if not t_json:
+        return list()
+    details = []
+    for detail in t_json:
+        details.append({
+            'Cost': detail['Cost'],
+            'InstanceData': detail['InstanceData'],
+            'MeterCategory': detail['MeterCategory'],
+            'MeterRegion': detail['MeterRegion'],
+            'MeterName': detail['MeterName'],
+            'MeterSubCategory': detail['MeterSubCategory'],
+            'Quantity': detail['Quantity'],
+            'RRP': detail['RRP'],
+            'ResourceGroup': detail['ResourceGroup'],
+            'ResourceId': detail['ResourceId'],
+            'Tags': json.loads(detail['Tags']),
+            'Unit': detail['Unit']
+        })
+    return details
