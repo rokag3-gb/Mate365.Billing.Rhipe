@@ -11,7 +11,7 @@ schedules:
   displayName: Every day at 10 am(utc) (오후7시)
   branches:
     include:
-    - azPipeline
+    - main
   always: true
 
 variables:
