@@ -148,8 +148,7 @@ def insert_customer_to_db(customer_list: list):
         # [BillingPeriod], [ProgramReferenceId], [ProgramReferenceLabel], [ProgramName], [Customer], [IsConsumptionProgram], [Contacts],
         # [CreditCard], [PaymentMethodDetails], [HasContractAgreement], [IsActive], [ReferringPartnerName], [IsRhipeEndCustomer],
         # [IsRhipePartnerCustomer], [RegDate]
-        insert_data.append((tenant['TenantId'],
-                            tenant['CustomerId'], tenant['CrmAccountId'], tenant['IsPartnerCustomer'], tenant['CustomerName'],
+        insert_data.append((tenant['CustomerId'], tenant['CrmAccountId'], tenant['IsPartnerCustomer'], tenant['CustomerName'],
                             tenant['CustomerNotificationEmail'], tenant['ParentCustomerId'], tenant['RegistrationNumber'], tenant['SignedWithRhipe'],
                             tenant['WebUrl'], tenant['MainPhone'], tenant['Fax'], tenant['Street1'],
                             tenant['Street2'], tenant['Street3'], tenant['City'], tenant['State'],
