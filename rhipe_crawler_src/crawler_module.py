@@ -115,6 +115,60 @@ def get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id):
     return tenants
 
 
+def get_customer_info_to_azure_tenant() -> list:
+    """
+
+    :return: {'tenant': customer, ...}
+    """
+    resp = prism_controller.customers_info()['data']
+    result = []
+    for customer in resp:
+        for tenant in customer['CustomerProgramAgreements']:
+            _customer_info = customer.copy()
+            _customer_info.pop('CustomerProgramAgreements', None)
+            _customer_info.update(tenant)
+            _customer_info['TenantId'] = _customer_info['Id']
+            result.append(_customer_info)
+    LOGGER.debug(f'Customer Azure info : {result}')
+    return result
+
+
+def insert_customer_to_db(customer_list: list):
+    db = DBConnect.get_instance()
+    sql = db.get_sql().INSERT_CUSTOMER
+    insert_data = []
+    for tenant in customer_list:
+        # [CustomerId], [CrmAccountId], [IsPartnerCustomer], [CustomerName], [CustomerNotificationEmail], [ParentCustomerId],
+        # [RegistrationNumber], [SignedWithRhipe], [WebUrl], [MainPhone], [Fax], [Street1], [Street2], [Street3], [City],
+        # [State], [Postcode], [Country], [CountryIsoCode], [CrmId], [FinanceAccountId], [FinanceAccounts], [DirectDebitWholeAccount],
+        # [Email], [BillingStreet1], [BillingStreet2], [BillingStreet3], [BillingCity], [BillingState], [BillingPostcode],
+        # [BillingCountry], [BillingCountryIsoCode], [SalesTerritoryName], [SalesPersonFirstName], [SalesPersonLastName],
+        # [AccountManagerFirstName], [AccountManagerLastName], [HowDidYouHearAboutRhipe], [HowDidYouHearAboutRhipeOther],
+        # [IndustryType], [IndustryTypeOther], [TenantId], [ProgramId], [AgreementStartDate], [AgreementEndDate], [ContractAgreementId],
+        # [BillingPeriod], [ProgramReferenceId], [ProgramReferenceLabel], [ProgramName], [Customer], [IsConsumptionProgram], [Contacts],
+        # [CreditCard], [PaymentMethodDetails], [HasContractAgreement], [IsActive], [ReferringPartnerName], [IsRhipeEndCustomer],
+        # [IsRhipePartnerCustomer], [RegDate]
+        insert_data.append((tenant['TenantId'],
+                            tenant['CustomerId'], tenant['CrmAccountId'], tenant['IsPartnerCustomer'], tenant['CustomerName'],
+                            tenant['CustomerNotificationEmail'], tenant['ParentCustomerId'], tenant['RegistrationNumber'], tenant['SignedWithRhipe'],
+                            tenant['WebUrl'], tenant['MainPhone'], tenant['Fax'], tenant['Street1'],
+                            tenant['Street2'], tenant['Street3'], tenant['City'], tenant['State'],
+                            tenant['Postcode'], tenant['Country'], tenant['CountryIsoCode'], tenant['CrmId'],
+                            tenant['FinanceAccountId'], json.dumps(tenant['FinanceAccounts']), tenant['DirectDebitWholeAccount'], tenant['Email'],
+                            tenant['BillingStreet1'], tenant['BillingStreet2'], tenant['BillingStreet3'], tenant['BillingCity'],
+                            tenant['BillingState'], tenant['BillingPostcode'], tenant['BillingCountry'], tenant['BillingCountryIsoCode'],
+                            tenant['SalesTerritoryName'], tenant['SalesPersonFirstName'], tenant['SalesPersonLastName'], tenant['AccountManagerFirstName'],
+                            tenant['AccountManagerLastName'], tenant['HowDidYouHearAboutRhipe'],
+                            tenant['HowDidYouHearAboutRhipeOther'], tenant['IndustryType'],
+                            tenant['IndustryTypeOther'], tenant['TenantId'], tenant['ProgramId'], tenant['AgreementStartDate'],
+                            tenant['AgreementEndDate'], tenant['ContractAgreementId'], tenant['BillingPeriod'], tenant['ProgramReferenceId'],
+                            tenant['ProgramReferenceLabel'], tenant['ProgramName'], tenant['Customer'], tenant['IsConsumptionProgram'],
+                            json.dumps(tenant['Contacts']), tenant['CreditCard'], json.dumps(tenant['PaymentMethodDetails']), tenant['HasContractAgreement'],
+                            tenant['IsActive'], tenant['ReferringPartnerName'], tenant['IsRhipeEndCustomer'],
+                            tenant['IsRhipePartnerCustomer'], datetime.now()))
+    db.insert_data(sql=sql, data=insert_data)
+
+
 def insert_preprocess_to_db(subscription_info: dict):
     input_value = []
     db = DBConnect.get_instance()

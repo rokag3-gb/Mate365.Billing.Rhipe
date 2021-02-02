@@ -32,3 +32,145 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
              (SELECT [preprocess_id] FROM [AzureRhipe_preprocess] WHERE [subscription] = %s and [last_update_date] >= %s and
               [last_update_date] <= %s order by [last_update_date] desc LIMIT 1) AS s)"""
     SELECT_PRODUCT_PRICE_ALL = """SELECT * FROM [AzureRhipe_product_price]"""
+    INSERT_CUSTOMER = """
+    
+    DECLARE @tenantId VARCHAR(50);
+    
+    SET @tenantId = %s;
+    IF EXISTS (SELECT 1
+               FROM [dbo].[AzureRhipe_Customer]
+               WHERE [tenantId] = @tenantId)
+    BEGIN
+
+        DELETE FROM [dbo].[AzureRhipe_Customer]
+              WHERE [tenantId] = @tenantId
+
+    END
+    ELSE
+    BEGIN    
+        INSERT INTO [dbo].[AzureRhipe_Customer]
+                   ([CustomerId]
+                   ,[CrmAccountId]
+                   ,[IsPartnerCustomer]
+                   ,[CustomerName]
+                   ,[CustomerNotificationEmail]
+                   ,[ParentCustomerId]
+                   ,[RegistrationNumber]
+                   ,[SignedWithRhipe]
+                   ,[WebUrl]
+                   ,[MainPhone]
+                   ,[Fax]
+                   ,[Street1]
+                   ,[Street2]
+                   ,[Street3]
+                   ,[City]
+                   ,[State]
+                   ,[Postcode]
+                   ,[Country]
+                   ,[CountryIsoCode]
+                   ,[CrmId]
+                   ,[FinanceAccountId]
+                   ,[FinanceAccounts]
+                   ,[DirectDebitWholeAccount]
+                   ,[Email]
+                   ,[BillingStreet1]
+                   ,[BillingStreet2]
+                   ,[BillingStreet3]
+                   ,[BillingCity]
+                   ,[BillingState]
+                   ,[BillingPostcode]
+                   ,[BillingCountry]
+                   ,[BillingCountryIsoCode]
+                   ,[SalesTerritoryName]
+                   ,[SalesPersonFirstName]
+                   ,[SalesPersonLastName]
+                   ,[AccountManagerFirstName]
+                   ,[AccountManagerLastName]
+                   ,[HowDidYouHearAboutRhipe]
+                   ,[HowDidYouHearAboutRhipeOther]
+                   ,[IndustryType]
+                   ,[IndustryTypeOther]
+                   ,[TenantId]
+                   ,[ProgramId]
+                   ,[AgreementStartDate]
+                   ,[AgreementEndDate]
+                   ,[ContractAgreementId]
+                   ,[BillingPeriod]
+                   ,[ProgramReferenceId]
+                   ,[ProgramReferenceLabel]
+                   ,[ProgramName]
+                   ,[Customer]
+                   ,[IsConsumptionProgram]
+                   ,[Contacts]
+                   ,[CreditCard]
+                   ,[PaymentMethodDetails]
+                   ,[HasContractAgreement]
+                   ,[IsActive]
+                   ,[ReferringPartnerName]
+                   ,[IsRhipeEndCustomer]
+                   ,[IsRhipePartnerCustomer]
+                   ,[RegDate])
+             VALUES
+                   (%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s
+                   ,%s)
+    END                   
+    """

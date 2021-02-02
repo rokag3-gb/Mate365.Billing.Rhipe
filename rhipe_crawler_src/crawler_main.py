@@ -4,7 +4,8 @@ import os
 from Common.slack_tool import send_msg_dict, send_text_msg
 from rhipe_crawler_src.crawler_module import get_cloudmate_crawl_all_tenant_subscription_list, \
     get_cloudmate_crawl_subscription_summary_detail_combine, TIME_FORMAT_NORMAL, target_last_update_datetime_str, \
-    target_last_update_datetime, update_preprocess_to_db, insert_preprocess_to_db
+    target_last_update_datetime, update_preprocess_to_db, insert_preprocess_to_db, get_customer_info_to_azure_tenant, \
+    insert_customer_to_db
 from rhipe_crawler_src.envlist import contractagreement_id
 from Common.logger import LOGGER
 from rhipe_crawler_src.s3_module import upload_to_s3
@@ -24,6 +25,10 @@ def crawler(t_date):
         search_date_str = target_last_update_datetime_str()
         search_date_datetime = datetime.strptime(search_date_str, TIME_FORMAT_NORMAL)
     LOGGER.info("[ Rhipe az usage -> CM Database -> GS S3 ] Crawler Start.")
+    # TODO: customers_info 호출 후, DB 적재
+    azure_customers = get_customer_info_to_azure_tenant()
+    insert_customer_to_db(azure_customers)
+
     tenants = get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id)
     # print(tenants)
     LOGGER.debug("tenants : %s" % tenants)
