@@ -2,8 +2,6 @@ import json
 import sys
 import os
 
-from Common.db_sql import SELECT_PRODUCT_PRICE_ALL
-
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from datetime import timedelta, timezone, datetime
 
@@ -220,7 +218,7 @@ def get_price_table():
         return price_table
 
     db = DBConnect()
-    sql = SELECT_PRODUCT_PRICE_ALL
+    sql = db.get_sql().SELECT_PRODUCT_PRICE_ALL
     return db.select_data(sql=sql)
 
 

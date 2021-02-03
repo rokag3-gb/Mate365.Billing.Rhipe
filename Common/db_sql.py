@@ -29,8 +29,8 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     UPDATE_INVOICE_IN_PREPROCESS_SQL = """UPDATE [AzureRhipe_preprocess] set body = JSON_MODIFY(body, '$.BillingTable', JSON_QUERY(%s)) 
             WHERE [preprocess_id] = (SELECT [preprocess_id] FROM
-             (SELECT [preprocess_id] FROM [AzureRhipe_preprocess] WHERE [subscription] = %s and [last_update_date] >= %s and
-              [last_update_date] <= %s order by [last_update_date] desc LIMIT 1) AS s)"""
+             (SELECT TOP (1) [preprocess_id] FROM [AzureRhipe_preprocess] WHERE [subscription] = %s and [last_update_date] >= %s and
+              [last_update_date] <= %s order by [last_update_date] desc) AS s)"""
     SELECT_PRODUCT_PRICE_ALL = """SELECT * FROM [AzureRhipe_product_price]"""
     INSERT_CUSTOMER = """
         
