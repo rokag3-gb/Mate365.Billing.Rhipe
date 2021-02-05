@@ -57,7 +57,7 @@ db = DBConnect.get_instance()
 # db 저장 check
 input_continue = input("Insert to table? (y,n) : ")
 if input_continue.lower() == 'y':
-    insert_db_invoice_details(db, details)
+    insert_db_invoice_details(db, invoice_id, details)
     db.commit()
     print('[INFO] Invoice Inserting . COMPLETE')
 

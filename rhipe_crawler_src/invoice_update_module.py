@@ -61,10 +61,11 @@ def select_db_proprecess_day(db: DBConnect, param_date: datetime):
     return data
 
 
-def insert_db_invoice_details(db: DBConnect, invoice_detail: list):
+def insert_db_invoice_details(db: DBConnect, invoice_id: str, invoice_detail: list):
     input_value = []
     for inv in invoice_detail:
-        input_value.append((inv['SubscriptionId'], inv['OfferName'],
+        input_value.append((invoice_id,
+                            inv['SubscriptionId'], inv['OfferName'],
                             inv['ChargeStartDate'], inv['ChargeEndDate'],
                             inv['UnitPrice'], inv['UnitPriceRrp'],
                             inv['Quantity'], inv['BillableRatio'],

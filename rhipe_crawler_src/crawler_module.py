@@ -54,6 +54,19 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                 service_resp_detail = prism_controller.subscription_usage_detail(subscription_id=subscription['SubscriptionId'],
                                                                                  start_date=start_date,
                                                                                  end_date=end_date)
+                while True:
+                    cost_sum = 0
+                    for item in service_resp_detail['data']['UsageLineItems']:
+                        cost_sum += item['Cost']
+                    total_cost = services['TotalCost']
+                    if round(float(total_cost), 10) != round(cost_sum, 10):
+                        LOGGER.info(f'Total Cost가 달라 다시 요청 Total Cost : {total_cost}, item 합계 : {cost_sum}')
+                        service_resp_detail = prism_controller.subscription_usage_detail(
+                            subscription_id=subscription['SubscriptionId'],
+                            start_date=start_date,
+                            end_date=end_date)
+                    else:
+                        break
 
                 if len(service_resp_detail['data']['UsageLineItems']) > 0:
                     subscription_detail_entity = detail_json({'tenant': tenant['TenantId'],
