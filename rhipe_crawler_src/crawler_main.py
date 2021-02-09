@@ -5,7 +5,8 @@ from Common.slack_tool import send_msg_dict, send_text_msg
 from rhipe_crawler_src.crawler_module import get_cloudmate_crawl_all_tenant_subscription_list, \
     get_cloudmate_crawl_subscription_summary_detail_combine, TIME_FORMAT_NORMAL, target_last_update_datetime_str, \
     target_last_update_datetime, update_preprocess_to_db, insert_preprocess_to_db, get_customer_info_to_azure_tenant, \
-    insert_customer_to_db
+    insert_customer_to_db, get_all_csp_price_table_from_rhipe, insert_rhipe_price_table_to_cm, \
+    delete_all_csp_price_table_from_cm
 from rhipe_crawler_src.envlist import contractagreement_id
 from Common.logger import LOGGER
 from rhipe_crawler_src.s3_module import upload_to_s3
@@ -158,6 +159,13 @@ def get_update(tenants, check_date: str, slack_channel='#update_check'):
     }
     send_msg_dict(report_slack_param)
     return new_data
+
+
+def price_table_update():
+    price_table = get_all_csp_price_table_from_rhipe(contractagreement_id=contractagreement_id)
+    delete_all_csp_price_table_from_cm()
+    insert_rhipe_price_table_to_cm(price_table=price_table)
+    DBConnect.get_instance().commit()
 
 
 #TEST

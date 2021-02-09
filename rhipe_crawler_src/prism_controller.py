@@ -1,4 +1,5 @@
 import urllib.parse
+from datetime import datetime
 
 import requests
 
@@ -173,6 +174,20 @@ class PrismController:
                      "pageSize": page_size}
         }
         LOGGER.debug(param)
+        return self._api_caller.request(param)
+
+    def csp_pricelist(self, contract_agreement_id, t_date: datetime = datetime.now()):
+        param = {
+            "endpoint": '/api/v2/me/pricing/{contractAgreementId}/pricelist/{t_date_year}/{t_date_month}/{t_date_day}/?excludeTieredProducts=true',
+            "method": "GET",
+            "param": {},
+            "contractAgreementId": contract_agreement_id,
+            "t_date_year": t_date.year,
+            "t_date_month": t_date.month,
+            "t_date_day": t_date.day,
+            "body": {}
+        }
+        LOGGER.debug(f'{param}')
         return self._api_caller.request(param)
 
 

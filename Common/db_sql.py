@@ -356,3 +356,26 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
                     )
     END
     """
+
+DELETE_RHIPE_PRODUCT_PRICE = "DELETE FROM [dbo].[AzureRhipe_product_price]"
+INSERT_RHIPE_PRODUCT_PRICE = """
+
+INSERT INTO [dbo].[AzureRhipe_product_price]
+           ([product_name]
+           ,[product_id_SKU]
+           ,[product_id_rhipe]
+           ,[partner_price]
+           ,[retail_price]
+           ,[retail_unit_price]
+           ,[datetime_stamp])
+     VALUES
+           (%s
+           ,%s
+           ,%s
+           ,%s
+           ,%s
+           ,%s
+           ,%s)
+
+
+"""

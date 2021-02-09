@@ -80,7 +80,7 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                 subscription['Services'] = services
             else:
                 # office 제품군 일때
-                billingtable = get_csp_price_table(product_id=subscription['ProductId'])
+                billingtable = get_csp_price_table_from_cm(product_id=subscription['ProductId'])
                 if billingtable is None:
                     LOGGER.error(
                         '[ERROR] 맞는 제품이 없습니다. Product ID : %s \n subscription : %s' % (subscription['ProductId'],
@@ -230,12 +230,12 @@ def get_price_table():
     if price_table is not None:
         return price_table
 
-    db = DBConnect()
+    db = DBConnect.get_instance()
     sql = db.get_sql().SELECT_PRODUCT_PRICE_ALL
     return db.select_data(sql=sql)
 
 
-def get_csp_price_table(product_id):
+def get_csp_price_table_from_cm(product_id):
     # TODO: DB에서 price table 가져오기.
     for t in get_price_table():
         if product_id == t['product_id_rhipe'] or product_id == t['product_id_SKU']:
@@ -245,6 +245,37 @@ def get_csp_price_table(product_id):
                         product_name=t['product_name'])
 
     return None
+
+
+def get_all_csp_price_table_from_rhipe(contractagreement_id):
+    price_table_json = prism_controller.csp_pricelist(contract_agreement_id=contractagreement_id)['data']
+    price_table = []
+    for group in price_table_json['ProductGroups']:
+        for product in group['Products']:
+            price_table.append(product)
+    return price_table
+
+
+def delete_all_csp_price_table_from_cm():
+    db = DBConnect.get_instance()
+    sql = db.get_sql().DELETE_RHIPE_PRODUCT_PRICE
+    db.delete_data(sql)
+
+
+def insert_rhipe_price_table_to_cm(price_table):
+    """
+
+    :param price_table: [{'ProductId': '778a4dce-0014-4d53-8647-314ef2b091d2', 'ProductName': 'Microsoft 365 A1', 'ProductGroup': 'Microsoft 365', 'ProductGroupId': 'c5d61a8e-5c13-47b8-9a61-9bebfd0a3d86', 'ProductSku': '778A4DCE-0014-4D53-8647-314EF2B091D2', 'Price': 352.0, 'MinQty': 1, 'MaxQty': 10000000, 'Qty': 1, 'UnitPrice': 352.0, 'ProductUnit': 'Licenses', 'ProductFrequencies': ['6 Years'], 'RetailPrice': 391.0, 'RetailUnitPrice': 391.0, 'CommitmentValue': None, 'TieredProductSku': None, 'ProductType': 'NON-SPECIFIC', 'ProductDescription': 'A simple offer for lightweight management and productivity for education devices. This is a one-time purchased for six years with no cancellation.', 'ProductShortDescription': None, 'ProductRestrictions': None, 'IsTrialProduct': False, 'BillingCycleOptions': 2, 'BillingCycleDuration': 6, 'CommitmentValueUnitPrice': None},
+    :return:
+    """
+    db = DBConnect.get_instance()
+    sql = db.get_sql().INSERT_RHIPE_PRODUCT_PRICE
+    insert_data = []
+    # [product_name], [product_id_SKU], [product_id_rhipe], [partner_price], [retail_price], [retail_unit_price], [datetime_stamp]
+    for price in price_table:
+        insert_data.append((price['ProductName'], price['ProductSku'], price['ProductId'], price['Price'], price['RetailPrice'],
+                            float(price['RetailPrice'])/100, datetime.now()))
+    db.insert_data(sql=sql, data=insert_data)
 
 
 def get_crawl_time_from_today():
