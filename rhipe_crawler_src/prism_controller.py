@@ -26,14 +26,14 @@ class PrismController:
 
         self._api_caller = PrismApiCaller()
 
-    def customers_info(self):
+    def customers_info(self, include_deactivated_customers=False):
         '''
 
         :return:
         '''
         param = {"endpoint": self.CUSTOMERS_INFO_ENDPOINT,
                  "method": "GET",
-                 "param": {},
+                 "param": {'includeDeactivatedCustomers': include_deactivated_customers},
                  "body": {}
                  }
         LOGGER.debug(param)

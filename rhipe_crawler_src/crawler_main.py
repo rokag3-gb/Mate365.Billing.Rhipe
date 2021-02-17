@@ -26,8 +26,9 @@ def crawler(t_date):
         search_date_str = target_last_update_datetime_str()
         search_date_datetime = datetime.strptime(search_date_str, TIME_FORMAT_NORMAL)
     LOGGER.info("[ Rhipe az usage -> CM Database -> GS S3 ] Crawler Start.")
-    # TODO: customers_info 호출 후, DB 적재
-    azure_customers = get_customer_info_to_azure_tenant()
+
+    # customers_info 호출 후, DB 적재
+    azure_customers = get_customer_info_to_azure_tenant(include_deactivated_customers=True)
     insert_customer_to_db(azure_customers)
 
     tenants = get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id)

@@ -126,12 +126,12 @@ def get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id):
     return tenants
 
 
-def get_customer_info_to_azure_tenant() -> list:
+def get_customer_info_to_azure_tenant(include_deactivated_customers=False) -> list:
     """
 
     :return: {'tenant': customer, ...}
     """
-    resp = prism_controller.customers_info()['data']
+    resp = prism_controller.customers_info(include_deactivated_customers=include_deactivated_customers)['data']
     result = []
     for customer in resp:
         for tenant in customer['CustomerProgramAgreements']:
