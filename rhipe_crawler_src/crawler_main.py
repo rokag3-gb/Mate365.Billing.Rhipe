@@ -1,7 +1,6 @@
-import json
 from datetime import datetime, timedelta
 import os
-from Common.slack_tool import send_msg_dict, send_text_msg
+from Common.teams_msg import send_teams_msg
 from rhipe_crawler_src.crawler_module import get_cloudmate_crawl_all_tenant_subscription_list, \
     get_cloudmate_crawl_subscription_summary_detail_combine, TIME_FORMAT_NORMAL, target_last_update_datetime_str, \
     target_last_update_datetime, update_preprocess_to_db, insert_preprocess_to_db, get_customer_info_to_azure_tenant, \
@@ -52,42 +51,9 @@ def crawler(t_date):
         s3_upload_amount = upload_to_s3(data=subscription_info['subscriptions'],
                                         param_date=search_date_datetime, is_upload=(env == 'prod'))
 
-    # (slack) 완료 노티.
-    link_param_date = search_date_datetime.strftime('%Y-%m-%d')
-    slack_param = {
-        "attachments": [
-            {
-                "fallback": "Success Daily Crawling - %s" % link_param_date,  # 노티에서 보임
-                "color": "#00ffff",  # 청녹?
-                "pretext": "[%s] Today Crawler is Done" % datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "title": "Preprocess Update",
-                "title_link": None,
-                "text": "Success \ncrawling and update preprocess table, s3 upload",
-                "fields": [
-                    {
-                        "title": "T1 Crawling (Amount)",
-                        "value": json.dumps(len_crawling_data, indent=4),
-                        "short": True
-                    },
-                    {
-                        "title": "DB INSERT (Amount)",
-                        "value": affected_count,
-                        "short": True
-                    },
-                    {
-                        "title": "S3 Upload (Amount)",
-                        "value": s3_upload_amount,
-                        "short": True
-                    },
-
-                ],
-            }
-        ],
-        "channel": '#info' if env == 'prod' else '#dev',
-        "as_user": True,
-        "text": None
-    }
-    send_msg_dict(slack_param)
+    # (Teams) 완료 노티.
+    msg = f'Rhipe Resource mount: {len_crawling_data}\nDone.'
+    send_teams_msg(msg)
 
 
 def crawler_update(period):
@@ -102,8 +68,9 @@ def crawler_update(period):
 
     db = DBConnect.get_instance()
 
-    send_text_msg(msg='Start Update!',
-                  channel='#update_check' if env == 'prod' else '#dev')
+    # (Teams) start 완료 노티.
+    msg = f'Start Update! RUN ENV:{env}'
+    send_teams_msg(msg)
 
     while start_date_object >= end_date_object:
         LOGGER.info('search date : %s' % end_date_object)
@@ -114,8 +81,8 @@ def crawler_update(period):
         if update_preprocess_to_db(new_data['subscriptions'], db=db):
             if env == 'prod':
                 db.commit()
-                send_text_msg(msg='Update 완료',
-                              channel='#update_check' if env == 'prod' else '#dev')
+                msg = f'Finish Update! search {end_date_object} (RUN ENV:{env})'
+                send_teams_msg(msg)
 
         # database select -> s3
         db_date = db.select_data(sql=db.get_sql().SELECT_PREPROCESS_OF_DAY_ALL_SQL,
@@ -129,8 +96,8 @@ def crawler_update(period):
 
         end_date_object += timedelta(days=1)
 
-    send_text_msg(msg='Done.',
-                  channel='#update_check' if env == 'prod' else '#dev')
+    msg = f'ALL Finish Update! RUN ENV:{env}'
+    send_teams_msg(msg)
     LOGGER.info('Update Done.')
 
 
@@ -139,28 +106,6 @@ def get_update(tenants, check_date: str, slack_channel='#update_check'):
     # get_cloudmate_crawl_subscription_summary_detail_combine
     new_data = get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date=check_date)
 
-    # REPORT
-    report_slack_param = {
-        "attachments": [
-            {
-                "fallback": "Update Check - %s" % check_date,  # 노티에서 보임
-                "color": "#00ffff",  # 청녹?
-                "title": "[%s] Update Check" % datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "text": "Check to [%s]" % check_date[:10],
-                "fields": [
-                    {
-                        "title": "T1 Server (Amount)",
-                        "value": json.dumps(new_data['length'], indent=4),
-                        "short": True
-                    },
-                ],
-            }
-        ],
-        "channel": slack_channel,
-        "as_user": True,
-        "text": None
-    }
-    send_msg_dict(report_slack_param)
     return new_data
 
 
@@ -199,8 +144,7 @@ def invoice_crawler(t_date: datetime):
 
     target_invoice = invoice_list[0]
     invoice_id = target_invoice['InvoiceId']
-    invoice_datetime = datetime.strptime("%d-%d" % (target_invoice['UsageYear'], target_invoice['UsageMonth']),
-                                         "%Y-%m")
+
     details = invoice_detail_by_invoiceid(invoice_id)
     insert_db_invoice_details(DBConnect.get_instance(), invoice_id, details)
     DBConnect.get_instance().commit()
