@@ -9,7 +9,6 @@ from datetime import datetime
 import boto3
 import botocore
 
-from Common.slack_tool import file_upload
 from Common.logger import LOGGER
 from rhipe_crawler_src.crawler_module import TIME_FORMAT_NORMAL
 from rhipe_crawler_src.envlist import s3_access_key, s3_secret_key, s3_region_name, s3_bucket_hosts, s3_prefix
@@ -92,8 +91,8 @@ def upload_to_s3(data, param_date: datetime, is_upload=True):
                                                                              param_date.year,
                                                                              param_date.month,
                                                                              param_date.day))
-    else:
-        file_upload(csv_path, "#dev")
+    # else:
+    #     file_upload(csv_path, "#dev")
 
     LOGGER.info('S3 Upload Done.')
     return upload_amount
