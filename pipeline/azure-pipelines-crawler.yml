@@ -36,5 +36,5 @@ steps:
 
 - script: |
     export PYTHONPATH=$PYTHONPATH:$(System.DefaultWorkingDirectory)
-    python pipeline/run.py -t crawler
+    python main.py -t crawler
   displayName: 'crawler'

@@ -5,13 +5,13 @@
 
 trigger: none
 
-#schedules:
-#- cron: "0 10 * * *"
-#  displayName: Every day at 10 am(utc) (오후7시)
-#  branches:
-#    include:
-#    - main
-#  always: true
+schedules:
+- cron: "0 9 2 * *"
+  displayName: Every month at 2th 9 am(utc) (매월 2일 오후 6시)
+  branches:
+    include:
+    - main
+  always: true
 
 variables:
 - group: Billing.RhipeCrawler.vg

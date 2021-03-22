@@ -16,19 +16,19 @@ from rhipe_crawler_src.envlist import s3_access_key, s3_secret_key, s3_region_na
 
 TIME_FORMAT_CSV = "%Y-%m-%d %H:%M:%S"
 
+if os.environ['s3_enable']:
+    s3 = boto3.resource(service_name='s3', aws_access_key_id=s3_access_key,
+                        aws_secret_access_key=s3_secret_key, region_name=s3_region_name)
+    bk_list = []
 
-s3 = boto3.resource(service_name='s3', aws_access_key_id=s3_access_key,
-                    aws_secret_access_key=s3_secret_key, region_name=s3_region_name)
-bk_list = []
+    s3_bucket_hosts_list = s3_bucket_hosts.split(' ')
 
-s3_bucket_hosts_list = s3_bucket_hosts.split(' ')
+    if not len(s3_bucket_hosts_list) > 0:
+        LOGGER.error('input s3 buckect name...')
+        raise ValueError
 
-if not len(s3_bucket_hosts_list) > 0:
-    LOGGER.error('input s3 buckect name...')
-    raise ValueError
-
-for host in s3_bucket_hosts_list:
-    bk_list.append(s3.Bucket(host))
+    for host in s3_bucket_hosts_list:
+        bk_list.append(s3.Bucket(host))
 
 
 def s3_check_connect():

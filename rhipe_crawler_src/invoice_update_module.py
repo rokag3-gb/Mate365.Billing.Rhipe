@@ -3,6 +3,7 @@ from datetime import datetime
 import logging as logger
 
 from Common.db_connection import DBConnect
+from Common.logger import LOGGER
 from Common.tools import get_month_start_and_last_date, datetime_to_json_formatting
 from rhipe_crawler_src.prism_controller import PrismController
 
@@ -12,20 +13,28 @@ TIME_FORMAT_RHIPE = "%Y-%m-%dT%H:%M:%S.%f%z"
 TIME_FORMAT_INVOICE = "%Y-%m-%dT%H:%M:%S.%f0%z"
 
 
-def get_invoice_list(date: datetime = None):
+def get_invoice_list(t_date: datetime = None):
     invoices = prism_controller.invoice_all()['data']['Records']
+    LOGGER.debug(f'Invoice list {invoices}')
     if len(invoices) < 1:
         logger.error('invoice list not exist... Check rhipe api or request params')
         raise ValueError
 
-    if date:
+    if t_date:
         result = []
         for _invoice in invoices:
-            if _invoice['UsageMonth'] == date.month and _invoice['UsageYear'] == date.year:
+            _invoice_start_date = datetime.strptime(_invoice['BillingPeriodStart'], TIME_FORMAT_NORMAL)
+            if _invoice_start_date.month == t_date.month and _invoice_start_date.year == t_date.year and\
+                    _invoice['ProgramName'] == 'Microsoft CSP Indirect':
                 result.append(_invoice)
         return result
-    logger.debug(invoices)
     return invoices
+
+
+def check_invoice_list(db: DBConnect, t_date: datetime):
+    check = db.select_data(db.get_sql().CHECK_INVOICE_LIST, (t_date.strftime('%Y%m'),))
+    LOGGER.debug(f'Invoice Exist Check : {check}')
+    return len(check) > 0
 
 
 def invoice_detail_by_invoiceid(invoice_id: str):

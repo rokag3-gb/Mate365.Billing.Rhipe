@@ -9,6 +9,8 @@ from rhipe_crawler_src.crawler_module import get_cloudmate_crawl_all_tenant_subs
     delete_all_csp_price_table_from_cm
 from rhipe_crawler_src.envlist import contractagreement_id
 from Common.logger import LOGGER
+from rhipe_crawler_src.invoice_update_module import get_invoice_list, check_invoice_list, invoice_detail_by_invoiceid, \
+    insert_db_invoice_details
 from rhipe_crawler_src.s3_module import upload_to_s3
 from Common.db_connection import DBConnect
 
@@ -46,7 +48,7 @@ def crawler(t_date):
     affected_count = insert_preprocess_to_db(subscription_info)
 
     s3_upload_amount = 0
-    if env == 'prod' or True:
+    if os.environ['s3_enable']:
         s3_upload_amount = upload_to_s3(data=subscription_info['subscriptions'],
                                         param_date=search_date_datetime, is_upload=(env == 'prod'))
 
@@ -166,6 +168,41 @@ def price_table_update():
     price_table = get_all_csp_price_table_from_rhipe(contractagreement_id=contractagreement_id)
     delete_all_csp_price_table_from_cm()
     insert_rhipe_price_table_to_cm(price_table=price_table)
+    DBConnect.get_instance().commit()
+
+
+def invoice_crawler(t_date: datetime):
+    # S3 제외.
+    print('[INFO] CM Invoice Crawling Manager.')
+    search_date_str = input("Input Search Date (format: \"%Y-%m\") or typing None: ")
+    print(search_date_str)
+    CRAWLER_ENV = os.getenv('CRAWLER_ENV') or 'dev'
+    print(f'RUN ENV : {CRAWLER_ENV}')
+
+    if t_date is None:
+        t_date = datetime.now()
+
+    # TODO: DB에 해당 invoice 존재 파악
+    if check_invoice_list(t_date):
+        LOGGER.error(f'{t_date} Invoice 존재. Exit.')
+        return
+
+    invoice_list = get_invoice_list(t_date)
+
+    if len(invoice_list) < 1:
+        LOGGER.error(f'{t_date} Rhipe Invoice 존재X. 확인필요.')
+        return
+
+    if len(invoice_list) > 1:
+        LOGGER.error(f'{t_date} Rhipe Invoice 여러개 존재. 확인필요.\n {invoice_list}')
+        return
+
+    target_invoice = invoice_list[0]
+    invoice_id = target_invoice['InvoiceId']
+    invoice_datetime = datetime.strptime("%d-%d" % (target_invoice['UsageYear'], target_invoice['UsageMonth']),
+                                         "%Y-%m")
+    details = invoice_detail_by_invoiceid(invoice_id)
+    insert_db_invoice_details(DBConnect.get_instance(), invoice_id, details)
     DBConnect.get_instance().commit()
 
 

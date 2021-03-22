@@ -379,3 +379,6 @@ INSERT INTO [dbo].[AzureRhipe_product_price]
 
 
 """
+CHECK_INVOICE_LIST = """SELECT TOP(1) [InvoiceMonth]
+  FROM [dbo].[AzureRhipe_invoice]
+  WHERE [InvoiceMonth] = %s"""
