@@ -15,7 +15,7 @@ from rhipe_crawler_src.envlist import s3_access_key, s3_secret_key, s3_region_na
 
 TIME_FORMAT_CSV = "%Y-%m-%d %H:%M:%S"
 
-if os.environ['s3_enable'] == 'enable':
+if os.environ['S3_ENABLE'] == 'enable':
     s3 = boto3.resource(service_name='s3', aws_access_key_id=s3_access_key,
                         aws_secret_access_key=s3_secret_key, region_name=s3_region_name)
     bk_list = []
