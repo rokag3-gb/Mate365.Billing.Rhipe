@@ -3,16 +3,17 @@
 - 환경변수 세팅
   - 운영/개발 변수
   ```
-  CRAWLER_ENV
+  CRAWLER_ENV = 'prod' or 'dev'
   ```
   - Rhipe 인증 변수
   ```
-    client_id
-    client_secret
-    contractagreement_id
+  client_id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  client_secret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  contractagreement_id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
   ```
   - cliper 인증 변수 (삭제예정)
   ```
+  s3_enable
   cliper_id
   cliper_pw
   s3_access_key

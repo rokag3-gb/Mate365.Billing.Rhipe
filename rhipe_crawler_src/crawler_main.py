@@ -47,7 +47,7 @@ def crawler(t_date):
     affected_count = insert_preprocess_to_db(subscription_info)
 
     s3_upload_amount = 0
-    if os.environ['s3_enable']:
+    if os.environ['s3_enable'] == 'enable':
         s3_upload_amount = upload_to_s3(data=subscription_info['subscriptions'],
                                         param_date=search_date_datetime, is_upload=(env == 'prod'))
 
@@ -90,9 +90,10 @@ def crawler_update(period):
         if len(db_date) < 1:
             LOGGER.error(f'{end_date_object} 일자의 Database 내용이 존재하지않음.')
             raise
-        upload_to_s3(data=db_date,
-                     param_date=end_date_object,
-                     is_upload=(env == 'prod'))
+        if os.environ['s3_enable'] == 'enable':
+            upload_to_s3(data=db_date,
+                         param_date=end_date_object,
+                         is_upload=(env == 'prod'))
 
         end_date_object += timedelta(days=1)
 
