@@ -2,9 +2,12 @@
 Azure Devops 파이프라인에서 시간에 맞춰 크롤링.
 
 """
+import os
+print('ENV TEST!!!')
+print(os.environ['s3_enable'])
 import argparse
 import logging
-import os
+
 from rhipe_crawler_src.crawler_main import crawler, crawler_update, price_table_update, invoice_crawler
 
 description = "Azure 빌링 Rhipe 크롤러"
