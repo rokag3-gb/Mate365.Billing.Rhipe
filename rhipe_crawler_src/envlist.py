@@ -46,4 +46,4 @@ s3_prefix = os.environ['S3_PREFIX']
 s3_region_name = os.environ['S3_REGION_NAME']
 s3_bucket_hosts = os.environ['S3_BUCKET_HOSTS']
 
-slack_api_token = os.environ['SLACK_API_TOKEN']
+# slack_api_token = os.environ['SLACK_API_TOKEN']
