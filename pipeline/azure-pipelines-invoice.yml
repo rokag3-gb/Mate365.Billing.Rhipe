@@ -36,5 +36,5 @@ steps:
 
 - script: |
     export PYTHONPATH=$PYTHONPATH:$(System.DefaultWorkingDirectory)
-    python pipeline/run.py -t update
-  displayName: 'crawler update'
+    python main.py -t invoice
+  displayName: 'invoice cralwer'
