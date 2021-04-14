@@ -117,7 +117,7 @@ def price_table_update():
     DBConnect.get_instance().commit()
 
 
-def invoice_crawler(t_date: datetime):
+def invoice_crawler(t_date: datetime = None):
     # S3 제외.
     print('[INFO] CM Invoice Crawling Manager.')
     search_date_str = input("Input Search Date (format: \"%Y-%m\") or typing None: ")
@@ -128,7 +128,7 @@ def invoice_crawler(t_date: datetime):
     if t_date is None:
         t_date = datetime.now()
 
-    # TODO: DB에 해당 invoice 존재 파악
+    # DB에 해당 invoice 존재 파악
     if check_invoice_list(t_date):
         LOGGER.error(f'{t_date} Invoice 존재. Exit.')
         return
