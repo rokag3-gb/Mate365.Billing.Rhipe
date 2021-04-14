@@ -125,7 +125,7 @@ def invoice_crawler(t_date: datetime = None):
         t_date = datetime.now()
 
     # DB에 해당 invoice 존재 파악
-    if check_invoice_list(t_date):
+    if check_invoice_list(DBConnect.get_instance(), t_date):
         LOGGER.error(f'{t_date} Invoice 존재. Exit.')
         return
 
