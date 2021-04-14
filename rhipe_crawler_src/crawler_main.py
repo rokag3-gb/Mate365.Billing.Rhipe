@@ -120,10 +120,6 @@ def price_table_update():
 def invoice_crawler(t_date: datetime = None):
     # S3 제외.
     print('[INFO] CM Invoice Crawling Manager.')
-    search_date_str = input("Input Search Date (format: \"%Y-%m\") or typing None: ")
-    print(search_date_str)
-    CRAWLER_ENV = os.getenv('CRAWLER_ENV') or 'dev'
-    print(f'RUN ENV : {CRAWLER_ENV}')
 
     if t_date is None:
         t_date = datetime.now()
