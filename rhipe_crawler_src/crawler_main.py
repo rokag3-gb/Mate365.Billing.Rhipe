@@ -85,15 +85,15 @@ def crawler_update(period):
                 send_teams_msg(msg)
 
         # database select -> s3
-        db_date = db.select_data(sql=db.get_sql().SELECT_PREPROCESS_OF_DAY_ALL_SQL,
-                                 data=end_date_object)
-        if len(db_date) < 1:
-            LOGGER.error(f'{end_date_object} 일자의 Database 내용이 존재하지않음.')
-            raise
-        if os.environ['S3_ENABLE'] == 'enable':
-            upload_to_s3(data=db_date,
-                         param_date=end_date_object,
-                         is_upload=(env == 'prod'))
+        # db_date = db.select_data(sql=db.get_sql().SELECT_PREPROCESS_OF_DAY_ALL_SQL,
+        #                          data=end_date_object)
+        # if len(db_date) < 1:
+        #     LOGGER.error(f'{end_date_object} 일자의 Database 내용이 존재하지않음.')
+        #     raise
+        # if os.environ['S3_ENABLE'] == 'enable':
+        #     upload_to_s3(data=db_date,
+        #                  param_date=end_date_object,
+        #                  is_upload=(env == 'prod'))
 
         end_date_object += timedelta(days=1)
 
