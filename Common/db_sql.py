@@ -160,7 +160,7 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
     
     IF EXISTS (SELECT 1
                FROM [dbo].[AzureRhipe_Customer]
-               WHERE [tenantId] = @tenantId)
+               WHERE [tenantId] = @tenantId OR [CustomerId] = @CustomerId)
     BEGIN
         UPDATE [dbo].[AzureRhipe_Customer]
            SET [CustomerId] = @CustomerId
@@ -225,7 +225,6 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
               ,[IsRhipePartnerCustomer] = @IsRhipePartnerCustomer
               ,[RegDate] = @RegDate
          WHERE [TenantId] = @TenantId
-
     END
     ELSE
     BEGIN    
