@@ -1,4 +1,5 @@
 envlist.py
+venv
 
 # Created by https://www.toptal.com/developers/gitignore/api/pycharm,vscode,visualstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=pycharm,vscode,visualstudio
@@ -423,7 +424,7 @@ paket-files/
 .cr/personal
 
 # Python Tools for Visual Studio (PTVS)
-__pycache__/
+__pycache__
 *.pyc
 
 # Cake - Uncomment if you are using it
