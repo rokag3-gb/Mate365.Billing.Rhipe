@@ -210,10 +210,11 @@ def update_preprocess_to_db(data: list, db: DBConnect):
             services_t = None
         else:
             services_t = json.dumps(services)
-        input_value.append((services_t,
-                            subscription['tenant'],
-                            subscription['subscription'],
-                            datetime.strptime(subscription['last_update_date'], TIME_FORMAT_NORMAL)))
+        if services_t is not None and subscription['tenant'] is not None and subscription['subscription'] is not None:
+            input_value.append((services_t,
+                                subscription['tenant'],
+                                subscription['subscription'],
+                                datetime.strptime(subscription['last_update_date'], TIME_FORMAT_NORMAL)))
 
     # tran_len = db.insert_data(sql=db.get_sql().UPDATE_PREPROCESS_SQL,
     #                           data=input_value)
