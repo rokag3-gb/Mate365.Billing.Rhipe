@@ -25,10 +25,10 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
     INSERT_PREPROCESS_SQL = "INSERT INTO [AzureRhipe_preprocess] ([tenant], [subscription], [body], [last_update_date]) VALUES (%s, %s, %s, %s);"
     UPDATE_PREPROCESS_SQL = """UPDATE [AzureRhipe_preprocess] set body = JSON_MODIFY(body, '$.Services', JSON_QUERY(%s)) WHERE [tenant] = %s and [subscription] = %s and [last_update_date] = %s"""
     UPSERT_PREPROCESS_SQL = """
-        DECLARE @tenant;
-        DECLARE @subscription;
-        DECLARE @body;
-        DECLARE @last_update_date;
+        DECLARE @tenant varchar(50);
+        DECLARE @subscription varchar(50);
+        DECLARE @body varchar(MAX);
+        DECLARE @last_update_date datetime;
 
         SET @tenant = %s;
         SET @subscription = %s;
