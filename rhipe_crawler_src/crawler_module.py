@@ -193,7 +193,7 @@ def insert_preprocess_to_db(subscription_info: dict):
                            data=(_last_update_date, s['subscription']))
 
     # TODO: delete 기존 값 을 했을때, 값이있으면 warning.
-    affected_count = db.insert_data(sql=db.get_sql().INSERT_PREPROCESS_SQL, data=input_value)
+    affected_count = db.insert_data(sql=db.get_sql().CHECK_AND_INSERT_PREPROCESS_SQL, data=input_value)
 
     db.commit()
     LOGGER.info("CM [%s] DB SAVE SUCCESS" % os.environ['CRAWLER_ENV'])
@@ -216,10 +216,10 @@ def update_preprocess_to_db(data: list, db: DBConnect):
                                 subscription['subscription'],
                                 datetime.strptime(subscription['last_update_date'], TIME_FORMAT_NORMAL)))
 
-    # tran_len = db.insert_data(sql=db.get_sql().UPDATE_PREPROCESS_SQL,
-    #                           data=input_value)
-    tran_len = db.insert_data(sql=db.get_sql().UPSERT_PREPROCESS_SQL,
+    tran_len = db.insert_data(sql=db.get_sql().UPDATE_PREPROCESS_SQL,
                               data=input_value)
+    # tran_len = db.insert_data(sql=db.get_sql().UPSERT_PREPROCESS_SQL,
+    #                           data=input_value)
 
     return tran_len
 

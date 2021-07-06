@@ -24,7 +24,7 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
 
     INSERT_PREPROCESS_SQL = "INSERT INTO [AzureRhipe_preprocess] ([tenant], [subscription], [body], [last_update_date]) VALUES (%s, %s, %s, %s);"
     UPDATE_PREPROCESS_SQL = """UPDATE [AzureRhipe_preprocess] set body = JSON_MODIFY(body, '$.Services', JSON_QUERY(%s)) WHERE [tenant] = %s and [subscription] = %s and [last_update_date] = %s"""
-    UPSERT_PREPROCESS_SQL = """
+    CHECK_AND_INSERT_PREPROCESS_SQL = """
         DECLARE @tenant varchar(50);
         DECLARE @subscription varchar(50);
         DECLARE @body varchar(MAX);
@@ -35,15 +35,11 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
         SET @subscription = %s;
         SET @last_update_date = %s;
 
-        IF EXISTS (SELECT 1
+        IF NOT EXISTS (SELECT 1
                 FROM [dbo].[AzureRhipe_preprocess]
                 WHERE [tenant] = @tenant and [subscription] = @subscription and [last_update_date] = @last_update_date)
         BEGIN
-            UPDATE [AzureRhipe_preprocess] set body = JSON_MODIFY(body, '$.Services', JSON_QUERY(@body)) WHERE [tenant] = @tenant and [subscription] = @subscription and [last_update_date] = @last_update_date
-        END
-        ELSE
-        BEGIN  
-            INSERT INTO [AzureRhipe_preprocess] ([tenant], [subscription], [body], [last_update_date]) VALUES (@tenant, @subscription, @body, @last_update_date)
+            INSERT INTO [dbo].[AzureRhipe_preprocess] ([tenant], [subscription], [body], [last_update_date]) VALUES (@tenant, @subscription, @body, @last_update_date)
         END
     """
     INSERT_INVOICE_SQL = """INSERT INTO [AzureRhipe_invoice] ([invoiceid], [SubscriptionId], [OfferName], [ChargeStartDate], [ChargeEndDate], [UnitPrice],

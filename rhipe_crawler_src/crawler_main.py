@@ -13,6 +13,16 @@ from rhipe_crawler_src.invoice_update_module import get_invoice_list, check_invo
 from rhipe_crawler_src.s3_module import upload_to_s3
 from Common.db_connection import DBConnect
 
+def crawler_period(t_date, period):
+    if t_date:
+        search_date_str = "%sT00:00:00+0000" % t_date
+    else:
+        search_date_str = target_last_update_datetime_str()
+    start_date_object = datetime.strptime(search_date_str, TIME_FORMAT_NORMAL)
+    for i in range(0, period):
+        end_date_object = start_date_object - timedelta(days=i)
+        LOGGER.info("CRAWLER PERIOD DATE: " + end_date_object.strftime("%Y-%m-%d"))
+        crawler(end_date_object.strftime("%Y-%m-%d"))
 
 def crawler(t_date):
     '''
