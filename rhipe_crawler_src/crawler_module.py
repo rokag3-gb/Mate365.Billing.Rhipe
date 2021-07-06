@@ -215,7 +215,9 @@ def update_preprocess_to_db(data: list, db: DBConnect):
                             subscription['subscription'],
                             datetime.strptime(subscription['last_update_date'], TIME_FORMAT_NORMAL)))
 
-    tran_len = db.insert_data(sql=db.get_sql().UPDATE_PREPROCESS_SQL,
+    # tran_len = db.insert_data(sql=db.get_sql().UPDATE_PREPROCESS_SQL,
+    #                           data=input_value)
+    tran_len = db.insert_data(sql=db.get_sql().UPSERT_PREPROCESS_SQL,
                               data=input_value)
 
     return tran_len
