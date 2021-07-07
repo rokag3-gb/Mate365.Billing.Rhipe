@@ -29,10 +29,10 @@ elif os.environ['DATABASE_TYPE'] == 'mssql':
         DECLARE @subscription varchar(50);
         DECLARE @body varchar(MAX);
         DECLARE @last_update_date datetime;
-
-        SET @body = %s;
+        
         SET @tenant = %s;
         SET @subscription = %s;
+        SET @body = %s;
         SET @last_update_date = %s;
 
         IF NOT EXISTS (SELECT 1
