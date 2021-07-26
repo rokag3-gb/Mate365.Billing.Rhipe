@@ -1,14 +1,14 @@
+from rhipe_crawler_src.prism_controller import PrismController
+from rhipe_crawler_src.data.data_to_json import tenant_json, services_json, detail_json, summary_json
+from Common.logger import LOGGER
+from Common.db_connection import DBConnect
+from datetime import timedelta, timezone, datetime
 import json
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from datetime import timedelta, timezone, datetime
 
-from Common.db_connection import DBConnect
-from Common.logger import LOGGER
-from rhipe_crawler_src.data.data_to_json import tenant_json, services_json, detail_json, summary_json
-from rhipe_crawler_src.prism_controller import PrismController
 
 prism_controller = PrismController()
 TIME_FORMAT_NORMAL = "%Y-%m-%dT%H:%M:%S%z"
@@ -29,7 +29,8 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
         start_date, end_date = get_crawl_time_from_today()
     else:
         start_date = search_date
-        end_date = datetime.strptime(start_date, TIME_FORMAT_NORMAL) + timedelta(days=1) - timedelta(seconds=1)
+        end_date = datetime.strptime(
+            start_date, TIME_FORMAT_NORMAL) + timedelta(days=1) - timedelta(seconds=1)
         end_date = end_date.strftime(TIME_FORMAT_NORMAL)
 
     detail_len = 0
@@ -38,9 +39,11 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
         for subscription in tenant['data']['Subscriptions']:
             # 구매일자가 검색일자 이후 일때, pass
             try:
-                purchased_date = datetime.strptime(subscription['FirstPurchased'], TIME_FORMAT_RHIPE)
+                purchased_date = datetime.strptime(
+                    subscription['FirstPurchased'], TIME_FORMAT_RHIPE)
             except ValueError:
-                purchased_date = datetime.strptime(subscription['FirstPurchased'], TIME_FORMAT_NORMAL)
+                purchased_date = datetime.strptime(
+                    subscription['FirstPurchased'], TIME_FORMAT_NORMAL)
             # if datetime.strptime(subscription['FirstPurchased'], TIME_FORMAT_RHIPE) > datetime.strptime(end_date, TIME_FORMAT_NORMAL):
             if purchased_date > datetime.strptime(end_date, TIME_FORMAT_NORMAL):
                 continue
@@ -50,17 +53,25 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                                                                                    start_date=start_date,
                                                                                    end_date=end_date,
                                                                                    aggregation=aggregation)
+
                 services = services_json(service_resp_summary['data'])
-                service_resp_detail = prism_controller.subscription_usage_detail(subscription_id=subscription['SubscriptionId'],
-                                                                                 start_date=start_date,
-                                                                                 end_date=end_date)
+                try:
+                    service_resp_detail = prism_controller.subscription_usage_detail(
+                        subscription_id=subscription['SubscriptionId'],
+                        start_date=start_date,
+                        end_date=end_date)
+                except Exception as e:
+                    LOGGER.error(f'Error obtaining usage detail error, skip obtaining data for this tenant - {e}')
+                    continue
+
                 while True:
                     cost_sum = 0
                     for item in service_resp_detail['data']['UsageLineItems']:
                         cost_sum += item['Cost']
                     total_cost = services['TotalCost']
                     if round(float(total_cost), 5) != round(cost_sum, 5):
-                        LOGGER.info(f'Total Cost가 달라 다시 요청 Total Cost : {total_cost}, item 합계 : {cost_sum}')
+                        LOGGER.info(
+                            f'Total Cost가 달라 다시 요청 Total Cost : {total_cost}, item 합계 : {cost_sum}')
                         service_resp_detail = prism_controller.subscription_usage_detail(
                             subscription_id=subscription['SubscriptionId'],
                             start_date=start_date,
@@ -73,14 +84,16 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                                                               'subscription': subscription['SubscriptionId'],
                                                               'last_update_date': start_date,
                                                               'body': service_resp_detail['data']['UsageLineItems']})
-                    detail_len += len(service_resp_detail['data']['UsageLineItems'])
+                    detail_len += len(service_resp_detail['data']
+                                      ['UsageLineItems'])
                     services['ResourceUsageDetails'] = subscription_detail_entity['body']
 
                 subscription['ProductName'] = 'Azure'
                 subscription['Services'] = services
             else:
                 # office 제품군 일때
-                billingtable = get_csp_price_table_from_cm(product_id=subscription['ProductId'])
+                billingtable = get_csp_price_table_from_cm(
+                    product_id=subscription['ProductId'])
                 if billingtable is None:
                     LOGGER.error(
                         '[ERROR] 맞는 제품이 없습니다. Product ID : %s \n subscription : %s' % (subscription['ProductId'],
@@ -103,7 +116,6 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
 
 
 def get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id):
-
     '''
     tenants, subscription 수집
      ex) [
@@ -117,11 +129,13 @@ def get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id):
     '''
 
     # 1
-    resp = prism_controller.tenants_subscriptions_info(contract_agreement_id=contractagreement_id)
+    resp = prism_controller.tenants_subscriptions_info(
+        contract_agreement_id=contractagreement_id)
     tenants = []
     LOGGER.debug('tenants_subscriptions_info 결과 : %s' % resp)
     for tenant_info in resp["data"]:
-        tenants.append({'TenantId': tenant_info['TenantId'], 'data': tenant_json(tenant_info)})
+        tenants.append(
+            {'TenantId': tenant_info['TenantId'], 'data': tenant_json(tenant_info)})
 
     return tenants
 
@@ -131,7 +145,8 @@ def get_customer_info_to_azure_tenant(include_deactivated_customers=False) -> li
 
     :return: {'tenant': customer, ...}
     """
-    resp = prism_controller.customers_info(include_deactivated_customers=include_deactivated_customers)['data']
+    resp = prism_controller.customers_info(
+        include_deactivated_customers=include_deactivated_customers)['data']
     result = []
     for customer in resp:
         for tenant in customer['CustomerProgramAgreements']:
@@ -164,16 +179,19 @@ def insert_customer_to_db(customer_list: list):
                             tenant['WebUrl'], tenant['MainPhone'], tenant['Fax'], tenant['Street1'],
                             tenant['Street2'], tenant['Street3'], tenant['City'], tenant['State'],
                             tenant['Postcode'], tenant['Country'], tenant['CountryIsoCode'], tenant['CrmId'],
-                            tenant['FinanceAccountId'], json.dumps(tenant['FinanceAccounts']), tenant['DirectDebitWholeAccount'], tenant['Email'],
+                            tenant['FinanceAccountId'], json.dumps(
+                                tenant['FinanceAccounts']), tenant['DirectDebitWholeAccount'], tenant['Email'],
                             tenant['BillingStreet1'], tenant['BillingStreet2'], tenant['BillingStreet3'], tenant['BillingCity'],
                             tenant['BillingState'], tenant['BillingPostcode'], tenant['BillingCountry'], tenant['BillingCountryIsoCode'],
-                            tenant['SalesTerritoryName'], tenant['SalesPersonFirstName'], tenant['SalesPersonLastName'], tenant['AccountManagerFirstName'],
+                            tenant['SalesTerritoryName'], tenant['SalesPersonFirstName'], tenant[
+                                'SalesPersonLastName'], tenant['AccountManagerFirstName'],
                             tenant['AccountManagerLastName'], tenant['HowDidYouHearAboutRhipe'],
                             tenant['HowDidYouHearAboutRhipeOther'], tenant['IndustryType'],
                             tenant['IndustryTypeOther'], tenant['TenantId'], tenant['ProgramId'], tenant['AgreementStartDate'],
                             tenant['AgreementEndDate'], tenant['ContractAgreementId'], tenant['BillingPeriod'], tenant['ProgramReferenceId'],
                             tenant['ProgramReferenceLabel'], tenant['ProgramName'], tenant['Customer'], tenant['IsConsumptionProgram'],
-                            json.dumps(tenant['Contacts']), tenant['CreditCard'], json.dumps(tenant['PaymentMethodDetails']), tenant['HasContractAgreement'],
+                            json.dumps(tenant['Contacts']), tenant['CreditCard'], json.dumps(
+                                tenant['PaymentMethodDetails']), tenant['HasContractAgreement'],
                             tenant['IsActive'], tenant['ReferringPartnerName'], tenant['IsRhipeEndCustomer'],
                             tenant['IsRhipePartnerCustomer'], datetime.now()))
     db.insert_data(sql=sql, data=insert_data)
@@ -183,17 +201,20 @@ def insert_preprocess_to_db(subscription_info: dict):
     input_value = []
     db = DBConnect.get_instance()
     for s in subscription_info['subscriptions']:
-        _last_update_date = datetime.strptime(s['last_update_date'], TIME_FORMAT_NORMAL)
+        _last_update_date = datetime.strptime(
+            s['last_update_date'], TIME_FORMAT_NORMAL)
         input_value.append(
             (s['tenant'], s['subscription'], json.dumps(s['body']), _last_update_date))
         if len(db.select_data(sql=db.get_sql().SELECT_PREPROCESS_OF_DAY_AND_SUBSCRIPTION_SQL,
                               data=(_last_update_date, s['subscription']))):
-            LOGGER.warning('[WARNING] DELETE! Before insert data. %s %s' % (s['subscription'], _last_update_date))
+            LOGGER.warning('[WARNING] DELETE! Before insert data. %s %s' % (
+                s['subscription'], _last_update_date))
             db.delete_data(sql=db.get_sql().DELETE_PREPROCESS_OF_DAY_SQL,
                            data=(_last_update_date, s['subscription']))
 
     # TODO: delete 기존 값 을 했을때, 값이있으면 warning.
-    affected_count = db.insert_data(sql=db.get_sql().CHECK_AND_INSERT_PREPROCESS_SQL, data=input_value)
+    affected_count = db.insert_data(
+        sql=db.get_sql().CHECK_AND_INSERT_PREPROCESS_SQL, data=input_value)
 
     db.commit()
     LOGGER.info("CM [%s] DB SAVE SUCCESS" % os.environ['CRAWLER_ENV'])
@@ -251,7 +272,8 @@ def get_csp_price_table_from_cm(product_id):
 
 
 def get_all_csp_price_table_from_rhipe(contractagreement_id):
-    price_table_json = prism_controller.csp_pricelist(contract_agreement_id=contractagreement_id)['data']
+    price_table_json = prism_controller.csp_pricelist(
+        contract_agreement_id=contractagreement_id)['data']
     price_table = []
     for group in price_table_json['ProductGroups']:
         for product in group['Products']:
