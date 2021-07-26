@@ -41,6 +41,7 @@
 ## 실행
 ```
 python main.py -t crawler // 일별 사용량 수집
+python main.py -t crawler_period -d [yyyy-mm-dd] -p [dd] // 지정 기간 범위 일별 사용량 수집
 python main.py -t update // CRAWLER_UPDATE_PERIOD 변수만큼 ~최근일자까지 업데이트 
 python main.py -t price_update // price table 업데이트
 python main.py -t invoice // 최신 월 인보이스 업데이트

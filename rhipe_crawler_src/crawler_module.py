@@ -61,32 +61,36 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                         start_date=start_date,
                         end_date=end_date)
                 except Exception as e:
-                    LOGGER.error(f'Error obtaining usage detail error, skip obtaining data for this tenant - {e}')
+                    LOGGER.info(f'Error obtaining usage detail error, skip obtaining data for this tenant - {e}')
                     continue
+                if service_resp_detail is not None and "data" in service_resp_detail and "UsageLineItems" in service_resp_detail['data']:
+                    while True:
+                        cost_sum = 0
+                        for item in service_resp_detail['data']['UsageLineItems']:
+                            cost_sum += item['Cost']
+                        total_cost = services['TotalCost']
+                        if round(float(total_cost), 5) != round(cost_sum, 5):
+                            LOGGER.info(
+                                f'Total Cost가 달라 다시 요청 Total Cost : {total_cost}, item 합계 : {cost_sum}')
+                            try:
+                                service_resp_detail = prism_controller.subscription_usage_detail(
+                                    subscription_id=subscription['SubscriptionId'],
+                                    start_date=start_date,
+                                    end_date=end_date)
+                            except Exception as e:
+                                LOGGER.info(f'Error obtaining usage detail error, skip obtaining data for this tenant - {e}')
+                                continue
+                        else:
+                            break
 
-                while True:
-                    cost_sum = 0
-                    for item in service_resp_detail['data']['UsageLineItems']:
-                        cost_sum += item['Cost']
-                    total_cost = services['TotalCost']
-                    if round(float(total_cost), 5) != round(cost_sum, 5):
-                        LOGGER.info(
-                            f'Total Cost가 달라 다시 요청 Total Cost : {total_cost}, item 합계 : {cost_sum}')
-                        service_resp_detail = prism_controller.subscription_usage_detail(
-                            subscription_id=subscription['SubscriptionId'],
-                            start_date=start_date,
-                            end_date=end_date)
-                    else:
-                        break
-
-                if len(service_resp_detail['data']['UsageLineItems']) > 0:
-                    subscription_detail_entity = detail_json({'tenant': tenant['TenantId'],
-                                                              'subscription': subscription['SubscriptionId'],
-                                                              'last_update_date': start_date,
-                                                              'body': service_resp_detail['data']['UsageLineItems']})
-                    detail_len += len(service_resp_detail['data']
-                                      ['UsageLineItems'])
-                    services['ResourceUsageDetails'] = subscription_detail_entity['body']
+                    if len(service_resp_detail['data']['UsageLineItems']) > 0:
+                        subscription_detail_entity = detail_json({'tenant': tenant['TenantId'],
+                                                                'subscription': subscription['SubscriptionId'],
+                                                                'last_update_date': start_date,
+                                                                'body': service_resp_detail['data']['UsageLineItems']})
+                        detail_len += len(service_resp_detail['data']
+                                        ['UsageLineItems'])
+                        services['ResourceUsageDetails'] = subscription_detail_entity['body']
 
                 subscription['ProductName'] = 'Azure'
                 subscription['Services'] = services
