@@ -21,6 +21,7 @@ class PrismController:
     MY_INFORMATION = "/api/v1/me"
     SUBSCRIPTIONS_USAGE = "/api/v2/microsoftcsp/azure/usage/summary/{subscription_id}?startDate={start_date}&endDate={end_date}&aggregation={aggregation}"
     SUBSCRIPTIONS_USAGE_DETAIL = "/api/v2/microsoftcsp/azure/detailed/{subscription_id}"
+    SUBSCRIPTIONS_USAGE_DETAIL_2 = "/api/v2/microsoftcsp/azure/usage/detailed"
 
     def __init__(self):
 
@@ -173,8 +174,38 @@ class PrismController:
                      "endDate": end_date,
                      "pageSize": page_size}
         }
-        LOGGER.debug(param)
-        return self._api_caller.request(param)
+
+        page_number = 1
+        result_arr = []
+        while True:
+            param = {
+                "endpoint": self.SUBSCRIPTIONS_USAGE_DETAIL_2,
+                "method": "POST",
+                "param": {},
+                "subscription_id": subscription_id,
+                "body": {
+                    "subscriptionId": subscription_id,
+                    "startDate": start_date,
+                    "endDate": end_date,
+                    # "startDate": "2021-07-13T09:00:00.875Z",
+                    # "endDate": "2021-07-16T09:00:00.875Z",
+                    "page": page_number,
+                    "pageSize": page_size
+                    }
+            }
+            LOGGER.debug(param)
+            result = self._api_caller.request(param)
+            if len(result['data']["Records"]) == 0:
+                break
+            result_arr.extend(result['data']["Records"])
+            page_number += 1
+            
+        
+        # result = self._api_caller.request(param)
+        # if result is None:
+        #     print(self._api_caller.request(param2))
+        return result_arr
+        
 
     def csp_pricelist(self, contract_agreement_id, t_date: datetime = datetime.now()):
         param = {

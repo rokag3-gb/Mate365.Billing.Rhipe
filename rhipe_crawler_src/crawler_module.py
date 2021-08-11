@@ -35,9 +35,18 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
 
     detail_len = 0
     subscriptions_combine = []
+
+    # temp_subs = [
+    #             "4747c81c-54f8-4c7a-9d00-2253eb50ebef",
+    #             "46692761-1ced-4da0-8c9c-bcfa70348e0a"
+    #             ]
     for tenant in tenants:
         for subscription in tenant['data']['Subscriptions']:
+    # for tenant in temp_tenants:
+    #     for subscription in temp_subs:
             # 구매일자가 검색일자 이후 일때, pass
+            # if subscription['SubscriptionId'] not in temp_subs:
+            #     continue
             try:
                 purchased_date = datetime.strptime(
                     subscription['FirstPurchased'], TIME_FORMAT_RHIPE)
@@ -63,11 +72,11 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                 except Exception as e:
                     LOGGER.info(f'Error obtaining usage detail error, skip obtaining data for this tenant - {e}')
                     continue
-                if service_resp_detail is not None and "data" in service_resp_detail and "UsageLineItems" in service_resp_detail['data']:
+                if len(service_resp_detail) > 0:
                     while True:
                         cost_sum = 0
-                        for item in service_resp_detail['data']['UsageLineItems']:
-                            cost_sum += item['Cost']
+                        for item in service_resp_detail:
+                            cost_sum += item['PartnerCost']
                         total_cost = services['TotalCost']
                         if round(float(total_cost), 5) != round(cost_sum, 5):
                             LOGGER.info(
@@ -83,13 +92,12 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                         else:
                             break
 
-                    if len(service_resp_detail['data']['UsageLineItems']) > 0:
+                    if len(service_resp_detail) > 0:
                         subscription_detail_entity = detail_json({'tenant': tenant['TenantId'],
                                                                 'subscription': subscription['SubscriptionId'],
                                                                 'last_update_date': start_date,
-                                                                'body': service_resp_detail['data']['UsageLineItems']})
-                        detail_len += len(service_resp_detail['data']
-                                        ['UsageLineItems'])
+                                                                'body': service_resp_detail})
+                        detail_len += len(service_resp_detail)
                         services['ResourceUsageDetails'] = subscription_detail_entity['body']
 
                 subscription['ProductName'] = 'Azure'
