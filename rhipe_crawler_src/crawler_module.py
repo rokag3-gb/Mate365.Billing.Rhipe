@@ -6,6 +6,8 @@ from datetime import timedelta, timezone, datetime
 import json
 import sys
 import os
+import math
+
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
@@ -73,12 +75,12 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
                     LOGGER.info(f'Error obtaining usage detail error, skip obtaining data for this tenant - {e}')
                     continue
                 if len(service_resp_detail) > 0:
-                    while True:
+                    for i in range(5):
                         cost_sum = 0
                         for item in service_resp_detail:
                             cost_sum += item['PartnerCost']
                         total_cost = services['TotalCost']
-                        if round(float(total_cost), 5) != round(cost_sum, 5):
+                        if round(math.trunc(float(total_cost)), 5) != round(math.trunc(cost_sum), 5):
                             LOGGER.info(
                                 f'Total Cost가 달라 다시 요청 Total Cost : {total_cost}, item 합계 : {cost_sum}')
                             try:
