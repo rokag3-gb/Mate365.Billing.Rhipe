@@ -95,20 +95,21 @@ def detail_usage_line_item_json(t_json: list):
         return list()
     details = []
     for detail in t_json:
-        details.append({
-            # 'Cost': detail['Cost'],
-            # 'InstanceData': detail['InstanceData'],
-            # 'MeterCategory': detail['MeterCategory'],
-            # 'MeterRegion': detail['MeterRegion'],
-            # 'MeterName': detail['MeterName'],
-            # 'MeterSubCategory': detail['MeterSubCategory'],
-            # 'Quantity': detail['Quantity'],
-            # 'RRP': detail['RRP'],
-            # 'ResourceGroup': detail['ResourceGroup'],
-            # 'ResourceId': detail['ResourceId'],
-            # 'Tags': json.loads(detail['Tags']),
-            # 'Unit': detail['Unit'],
+        AdditionalInfo = None
+        if detail['AdditionalInfo'] is not None:
+            try:
+                AdditionalInfo = json.load(detail['AdditionalInfo'])
+            except Exception as e:
+                AdditionalInfo = detail['AdditionalInfo']
 
+        Tags = None
+        if detail['Tags'] is not None:
+            try:
+                Tags = json.load(detail['Tags'])
+            except Exception as e:
+                Tags = detail['Tags']
+
+        details.append({
             "SubscriptionId": detail['SubscriptionId'],
             "CustomerName": detail['CustomerName'],
             "VendorSubscriptionId": detail['VendorSubscriptionId'],
@@ -131,8 +132,8 @@ def detail_usage_line_item_json(t_json: list):
             "ResourceUri": detail['ResourceUri'],
             "ResourceLocation": detail['ResourceLocation'],
             "ResourceGroup": detail['ResourceGroup'],
-            "Tags":  json.loads(detail['Tags']) if detail['Tags'] else detail['Tags'],
-            "AdditionalInfo": json.loads(detail['AdditionalInfo']) if detail['AdditionalInfo'] else detail['AdditionalInfo'],
+            "Tags":  Tags,
+            "AdditionalInfo": AdditionalInfo,
             "Quantity": detail['Quantity'],
             "Unit": detail['Unit' ],
             "ProductId": detail['ProductId'],
