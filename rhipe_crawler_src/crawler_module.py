@@ -188,6 +188,8 @@ def insert_customer_to_db(customer_list: list):
         # [BillingPeriod], [ProgramReferenceId], [ProgramReferenceLabel], [ProgramName], [Customer], [IsConsumptionProgram], [Contacts],
         # [CreditCard], [PaymentMethodDetails], [HasContractAgreement], [IsActive], [ReferringPartnerName], [IsRhipeEndCustomer],
         # [IsRhipePartnerCustomer], [RegDate]
+
+        # IsRhipeEndCustomer, IsRhipePartnerCustomer -> CustomerActingRole 로 통합됨. stringEnum:"Partner", "EndCustomer", "PartnerAndEndCustomer"
         insert_data.append((tenant['CustomerId'], tenant['CrmAccountId'], tenant['IsPartnerCustomer'], tenant['CustomerName'],
                             tenant['CustomerNotificationEmail'], tenant['ParentCustomerId'], tenant['RegistrationNumber'], tenant['SignedWithRhipe'],
                             tenant['WebUrl'], tenant['MainPhone'], tenant['Fax'], tenant['Street1'],
@@ -206,8 +208,8 @@ def insert_customer_to_db(customer_list: list):
                             tenant['ProgramReferenceLabel'], tenant['ProgramName'], tenant['Customer'], tenant['IsConsumptionProgram'],
                             json.dumps(tenant['Contacts']), tenant['CreditCard'], json.dumps(
                                 tenant['PaymentMethodDetails']), tenant['HasContractAgreement'],
-                            tenant['IsActive'], tenant['ReferringPartnerName'], tenant['IsRhipeEndCustomer'],
-                            tenant['IsRhipePartnerCustomer'], datetime.now()))
+                            tenant['IsActive'], tenant['ReferringPartnerName'], tenant['CustomerActingRole'] in (0,2),
+                            tenant['CustomerActingRole'] in (1,2), datetime.now()))
     db.insert_data(sql=sql, data=insert_data)
 
 
