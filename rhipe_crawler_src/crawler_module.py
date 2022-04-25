@@ -50,8 +50,9 @@ def get_cloudmate_crawl_subscription_summary_detail_combine(tenants, search_date
             # if subscription['SubscriptionId'] not in temp_subs:
             #     continue
             try:
-                purchased_date = datetime.strptime(
-                    subscription['FirstPurchased'], TIME_FORMAT_RHIPE)
+                # purchased_date = datetime.strptime( ## TODO 시간 파싱 오류 수정
+                #     subscription['FirstPurchased'].split(".")[0], TIME_FORMAT_RHIPE)
+                purchased_date = datetime.fromisoformat(subscription['FirstPurchased'].split(".")[0]+".000"+subscription['FirstPurchased'][-6:])
             except ValueError:
                 purchased_date = datetime.strptime(
                     subscription['FirstPurchased'], TIME_FORMAT_NORMAL)
