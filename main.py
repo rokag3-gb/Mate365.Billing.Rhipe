@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description=description)
 
 parser.add_argument('-t', '--type', type=str, required=False, default='crawler')
 parser.add_argument('-d', '--date', type=str, required=False, default=None)
-parser.add_argument('-p', '--period', type=int, required=False, default=int(os.environ['CRAWLER_UPDATE_PERIOD']))
+parser.add_argument('-p', '--period', type=int, required=False, default=int(os.getenv('CRAWLER_UPDATE_PERIOD', '1')))
 args = parser.parse_args()
 
 if args.type == 'crawler':
