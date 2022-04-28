@@ -20,7 +20,7 @@ if args.type == 'crawler':
 elif args.type == 'crawler_period':
     crawler_period(args.date, args.period)
 elif args.type == 'update':
-    crawler_update(args.period)
+    crawler_update(args.date, args.period)
 elif args.type == 'price_update':
     price_table_update()
 elif args.type == 'invoice':

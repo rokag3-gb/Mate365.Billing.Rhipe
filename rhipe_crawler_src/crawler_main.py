@@ -66,12 +66,14 @@ def crawler(t_date):
     send_teams_msg(msg)
 
 
-def crawler_update(period):
+def crawler_update(t_date, period):
     LOGGER.info("[ Rhipe(T1) Usage -> CM Database -> GS S3 update ] Tool Start.")
 
     tenants = get_cloudmate_crawl_all_tenant_subscription_list(contractagreement_id)
-
-    start_date_object = target_last_update_datetime()
+    if t_date:
+        start_date_object = datetime.fromisoformat(t_date+"T00:00:00.000+00:00")
+    else:
+        start_date_object = target_last_update_datetime()
     end_date_object = start_date_object - timedelta(days=period)
     env = os.getenv('CRAWLER_ENV') or 'dev'
     LOGGER.info("Crawling ENV is [ %s ]" % env)
