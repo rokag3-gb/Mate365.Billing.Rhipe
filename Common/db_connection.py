@@ -105,6 +105,7 @@ class DBConnect:
                 raise
 
             try:
+                print(data)
                 affected = cursor.executemany(sql, data)
                 if auto_commit:
                     self._client.commit()
