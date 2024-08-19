@@ -207,7 +207,7 @@ def insert_customer_to_db(customer_list: list):
                             tenant['IndustryTypeOther'], tenant['TenantId'], tenant['ProgramId'], tenant['AgreementStartDate'],
                             tenant['AgreementEndDate'], tenant['ContractAgreementId'], tenant['BillingPeriod'], tenant['ProgramReferenceId'],
                             tenant['ProgramReferenceLabel'], tenant['ProgramName'], tenant['Customer'], tenant['IsConsumptionProgram'],
-                            json.dumps(tenant['Contacts']), tenant['CreditCard'], json.dumps(
+                            json.dumps(tenant['Contacts']), json.dumps(tenant['CreditCard']), json.dumps(
                                 tenant['PaymentMethodDetails']), tenant['HasContractAgreement'],
                             tenant['IsActive'], tenant['ReferringPartnerName'], tenant['CustomerActingRole'] in (0,2),
                             tenant['CustomerActingRole'] in (1,2), datetime.now()))
