@@ -1,5 +1,5 @@
 import os
-
+import traceback
 from Common import db_sql
 from Common.logger import LOGGER
 
@@ -117,9 +117,11 @@ class DBConnect:
                 LOGGER.warning('[RETRY]INSERT SQL Error.. : %s' % e)
                 cursor.close()
                 self._connect()
+                print(traceback.format_exc())
             except Exception as e:
                 LOGGER.warning('[RETRY]DB Error.. : %s' % e)
                 cursor.close()
+                print(traceback.format_exc())
         LOGGER.error("Database Error...")
         LOGGER.exception('exception')
         raise sqllib.DatabaseError
